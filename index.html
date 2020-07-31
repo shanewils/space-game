@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Trespassers from Space</title>
+    <style>
+    body{
+        background-color: black;
+    }
+      .ship-wrap {
+        display: flex;
+        justify-content: center;
+      }
+      .ship-wrap > * {
+        text-align: center;
+        padding: 0.5rem;
+        margin: 0.5rem;
+      }
+      .motherShip {
+        border: 2px solid red;
+        border-radius: 50px;
+        background-color: white;
+        width: 200px;
+      }
+      .attackShip {
+        border: 2px solid blue;
+        border-radius: 50px;
+        background-color: white;
+      }
+      .defenseShip {
+        border: 2px solid yellow;
+        border-radius: 50px;
+        background-color: white;
+      }
+    </style>
+
+  </head>
+
+  <body>
+    <section id="ships" style="display: flex; flex-direction: column;">
+      <div id="motherShip" class="ship-wrap"></div>
+      <div id="defenders" class="ship-wrap"></div>
+      <div id="attackers" class="ship-wrap"></div>
+      
+    </section>
+    <br><br>
+    <div style="display:block; margin: 0 auto; height: 300px; width: 300px; border-radius: 50%; background-color: aqua;"></div>
+    <br>
+    <h1 style="color: white; text-align: center;">Earth</h1>
+    <br>
+    <div style="display: flex; align-content:center; justify-content: center; ">
+        <button id="fire">Fire</button>
+        <button id="new-game">New Game</button>
+    </div>
+
+    <script>
+      const numMotherShips = 1;
+      const numAttackShips = 8;
+      const numDefenseShips = 5;
+      const totalShips = numAttackShips + numDefenseShips + numMotherShips;
+      let ships = [];
+      const motherShip = document.getElementById("motherShip");
+      const attackers = document.getElementById("attackers");
+      const defenders = document.getElementById("defenders");
+      const shipsElement = document.getElementById("ships");
+
+      class Ship {
+        constructor(name, hp, dmgPoints) {
+          this.name = name;
+          this.hp = hp;
+          this.dmgPoints = dmgPoints;
+        }
+        isHit() {
+          this.hp = this.hp - this.dmgPoints;
+        }
+        die() {
+          this.hp = 0;
+        }
+      }
+
+      const newGame = () => {
+        document.getElementById("fire").disabled = false;
+        ships = [];
+        for (let index = 0; index < totalShips; index++) {
+          let newShip;
+          if (index < numMotherShips) {
+            newShip = new Ship("MotherShip", 100, 9);
+          } else if (index <= numAttackShips) {
+            newShip = new Ship("AttackShip", 45, 12);
+          } else if (index <= totalShips) {
+            newShip = new Ship("DefenseShip", 80, 10);
+          }
+          ships.push(newShip);
+        }
+        updateHtml();
+      };
+
+      const updateHtml = () => {
+        motherShip.innerHTML = "";
+        attackers.innerHTML = "";
+        defenders.innerHTML = "";
+
+        ships.forEach((ship, index) => {
+          if (ship.name === "MotherShip") {
+            motherShip.innerHTML += `<p class="motherShip" id=${index}>${ship.name}: <br>${ship.hp}</p>`;
+          } else if (ship.name === "AttackShip") {
+            attackers.innerHTML += `<p class="attackShip" id=${index}>${ship.name}: <br>${ship.hp}</p>`;
+          } else {
+            defenders.innerHTML += `<p class="defenseShip" id=${index}>${ship.name}: <br>${ship.hp}</p>`;
+          }
+        });
+      };
+
+      const endGame = () => {
+        ships.forEach((ship) => ship.die());
+        document.getElementById("fire").disabled = true;
+        alert("Mission complete");
+      };
+
+      const takeDmg = () => {
+        const randomIndex = Math.floor(Math.random() * ships.length);
+        const randomShip = ships[randomIndex];
+        randomShip.isHit();
+
+        if (randomShip.hp <= 0 && randomShip.name === "MotherShip") {
+          endGame();
+        } else if (randomShip.hp <= 0) {
+          ships.splice(randomIndex, 1);
+        }
+      
+        updateHtml();
+      };
+
+      document.querySelector("#fire").addEventListener("click", takeDmg);
+      document.querySelector("#new-game").addEventListener("click", newGame);
+    </script>
+  </body>
+</html>
